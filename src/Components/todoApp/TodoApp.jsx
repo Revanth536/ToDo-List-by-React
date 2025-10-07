@@ -1,12 +1,20 @@
-// TodoApp.jsx - Corrected
-import { useState } from "react";
-// Assuming you created a TodoList.jsx file and export ToDoList
+
+import { useEffect, useState } from "react";
 import ToDoList from "../todolist/todolist";
 
+
+const Local="react-todo-app.tasks"
 export const TodoApp = () => {
  
-    const [task, setTask] = useState([]);
+    const [task, setTask] = useState(() => {
+        const storeedTask = localStorage.getItem(Local);
+        return storeedTask ? JSON.parse(storeedTask)
+            : []
+    });
     const [input, setInput] = useState("");
+    useEffect(() => {
+        localStorage.setItem(Local, JSON.stringify(task))
+    },[task])
     
     const addToDo = () => {
         if (input.trim()) {
@@ -24,22 +32,26 @@ export const TodoApp = () => {
         setTask(task.map((t) => t.id === id ? { ...t, completed: !t.completed } : t));
     };
     
-   
+    const edit = (id,newText) =>{
+       setTask(task.map((t)=>t.id?{...t,input: newText }:t))
+   }
     return (
         <>
             <h1>TooDo App</h1>
             <input 
                 type="text" 
-                placeholder="Enter your text" 
+                class="placeholder col-6 " 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
             />
-            <button onClick={addToDo}>Add Task</button>
-            {/* FIX D & C: Use ToDoList and pass 'toggle' prop correctly */}
+            
+            <button type="button" class="btn btn-success" onClick={addToDo}>Add Task</button>
+           
             <ToDoList
                 task={task}
                 del={del}
                 toggle={toggle} 
+                edit={edit}
             />
         </>
     );
